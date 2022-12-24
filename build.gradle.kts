@@ -1,6 +1,7 @@
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.7.21"
     `java-library`
+    id("org.sonarqube") version "3.5.0.2730"
 }
 
 repositories {
@@ -26,4 +27,11 @@ dependencies {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "least-authority_wormhole-client_AYVEgPFpIb_tSwskweLP")
+        property("sonar.qualitygate.wait", true)
+    }
 }
