@@ -2,6 +2,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.7.21"
     `java-library`
     id("org.sonarqube") version "3.5.0.2730"
+    id("jacoco")
 }
 
 repositories {
@@ -24,6 +25,14 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.1")
     testImplementation("org.assertj:assertj-core:3.23.1")
 }
+
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+//tasks.named("sonarqube") {
+//    dependsOn(tasks.named("jacocoTestReport"))
+//}
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
