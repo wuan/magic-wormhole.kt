@@ -1,14 +1,16 @@
 package net.wuerl.wormhole.client
 
-import com.beust.klaxon.FieldRenamer
-import com.beust.klaxon.Klaxon
 import com.beust.klaxon.PathMatcher
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.runBlocking
+import net.wuerl.wormhole.client.States.InitState
+import net.wuerl.wormhole.client.States.StartState
+import net.wuerl.wormhole.client.protocol.*
 import ru.nsk.kstatemachine.*
 import java.util.regex.Pattern
 
@@ -29,42 +31,25 @@ suspend fun HttpClient.webSocket(
     block = block
 )
 
-val renamer = object : FieldRenamer {
-    override fun toJson(fieldName: String) = FieldRenamer.camelToUnderscores(fieldName)
-    override fun fromJson(fieldName: String) = FieldRenamer.underscoreToCamel(fieldName)
-}
-
-val klaxon = Klaxon().fieldRenamer(renamer)
 
 object CancelEvent : Event
 
-data class MessageReceivedEvent<T:Message>(override val data: T) : DataEvent<T>
 
 sealed class States : DefaultState() {
     object InitState : States()
+
+    object StartState : States()
+
     object ExitState : States(), FinalState // Machine finishes when enters final state
 }
 
 interface Message;
 
-data class WelcomeOptions(val test: String = "")
-
-data class Welcome(
-    val welcome: WelcomeOptions,
-    val type: String,
-    val serverTx: Float,
-) : Message
-
-inline fun <reified T:Message> messageReceivedEvent(messageBody: String): MessageReceivedEvent<T>? {
-    val data = klaxon.parse<T>(messageBody)
-    return if (data != null)
-        MessageReceivedEvent(data) else null
-}
 
 fun main() {
 
     val machine = createStateMachine {
-        addInitialState(States.InitState) {
+        addInitialState(InitState) {
             // Add state listeners
             onEntry { println("Enter init") }
             onExit { println("Exit init") }
@@ -74,9 +59,24 @@ fun main() {
                 // Add transition listener
                 onTriggered { println("Cancelled") }
             }
+            transition<WelcomeEvent> {
+                targetState = StartState
+            }
+        }
 
-            //dataTransition<MessageReceivedEvent, String> { targetState = this. }
-
+        addState(StartState) {
+            onEntry {
+                println("Enter start")
+                val sendChannel = it.argument as SendChannel<Frame>
+                runBlocking {
+                    println("Start send 'allocate'")
+                    sendChannel.send(
+                        Frame.Text(klaxon.toJsonString(Bind(side = "receive")))
+                    )
+                    println("Start send done")
+                }
+            }
+            onExit { println("Enter start") }
         }
 
         ignoredEventHandler = StateMachine.IgnoredEventHandler { event, _ ->
@@ -89,7 +89,7 @@ fun main() {
     }
 
 
-    fun processMessage(messageBody: String): MessageReceivedEvent<*>? {
+    fun processMessage(messageBody: String): Event? {
         var type: String? = null
         val pathMatcher = object : PathMatcher {
             override fun pathMatches(path: String) = Pattern.matches("\\$\\.type", path)
@@ -110,21 +110,25 @@ fun main() {
         }
         println("parsing message: $messageBody")
         return when (type) {
-            "welcome" -> messageReceivedEvent<Welcome>(messageBody)
+            "welcome" -> WelcomeEvent(klaxon.parse<Welcome>(messageBody)!!)
+            "ack" -> AckEvent(klaxon.parse<Ack>(messageBody)!!)
             else -> null
         }
     }
 
     runBlocking {
-        client.webSocket(url) {
+        client.webSocket(url3) {
             while (true) {
+                println("receive")
                 val othersMessage = incoming.receive() as? Frame.Text
+                println("received ${othersMessage}")
                 if (othersMessage != null) {
                     val event = processMessage(othersMessage.readText())
                     if (event != null) {
-                        machine.processEvent(event)
+                        val processResult = machine.processEvent(event, outgoing)
+                        println("event result ${processResult}")
                     }
-                    break
+//                    break
                 }
 //                val myMessage = readLine()
 //                if(myMessage != null) {
