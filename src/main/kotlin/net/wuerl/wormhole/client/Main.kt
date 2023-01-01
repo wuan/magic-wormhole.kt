@@ -67,14 +67,7 @@ fun main() {
         addState(StartState) {
             onEntry {
                 println("Enter start")
-                val sendChannel = it.argument as SendChannel<Frame>
-                runBlocking {
-                    println("Start send 'allocate'")
-                    sendChannel.send(
-                        Frame.Text(klaxon.toJsonString(Bind(side = "receive")))
-                    )
-                    println("Start send done")
-                }
+                sendResponse(it.argument, Bind(side = "receive"))
             }
             onExit { println("Enter start") }
         }
@@ -139,4 +132,18 @@ fun main() {
     }
     client.close()
     println("Connection closed. Goodbye!")
+}
+
+private fun sendResponse(argument: Any?, payload: Bind) {
+    if (argument is SendChannel<*>) {
+        val sendChannel = argument as SendChannel<Frame>
+        runBlocking {
+            println("Start send 'allocate'")
+            sendChannel.send(
+                Frame.Text(klaxon.toJsonString(payload))
+            )
+            println("Start send done")
+        }
+    }
+
 }

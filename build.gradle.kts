@@ -30,9 +30,18 @@ jacoco {
     toolVersion = "0.8.8"
 }
 
-//tasks.named("sonarqube") {
-//    dependsOn(tasks.named("jacocoTestReport"))
-//}
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.required.set(false)
+    }
+    dependsOn(tasks.test)
+}
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
