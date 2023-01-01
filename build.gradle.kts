@@ -34,6 +34,10 @@ tasks.test {
     finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
 }
 
+tasks.sonar {
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+
 tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
