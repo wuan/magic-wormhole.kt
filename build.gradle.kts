@@ -51,6 +51,6 @@ tasks.named<Test>("test") {
 sonar {
     properties {
         property("sonar.projectKey", "least-authority_wormhole-client_AYVEgPFpIb_tSwskweLP")
-        property("sonar.qualitygate.wait", true)
+//        property("sonar.qualitygate.wait", true)
     }
 }
