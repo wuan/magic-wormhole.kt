@@ -35,7 +35,7 @@ tasks.test {
 }
 
 tasks.sonar {
-    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+    dependsOn(tasks.jacocoTestReport)
 }
 
 tasks.jacocoTestReport {
