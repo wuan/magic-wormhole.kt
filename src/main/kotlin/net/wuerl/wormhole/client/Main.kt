@@ -8,7 +8,7 @@ import io.ktor.http.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.runBlocking
-import net.wuerl.wormhole.client.States.InitState
+import net.wuerl.wormhole.client.States.*
 import net.wuerl.wormhole.client.States.StartState
 import net.wuerl.wormhole.client.protocol.*
 import ru.nsk.kstatemachine.*
@@ -39,6 +39,7 @@ sealed class States : DefaultState() {
     object InitState : States()
 
     object StartState : States()
+    object Start2State : States()
 
     object ExitState : States(), FinalState // Machine finishes when enters final state
 }
@@ -69,7 +70,21 @@ fun main() {
                 println("Enter start")
                 sendResponse(it.argument, Bind(side = "receive"))
             }
-            onExit { println("Enter start") }
+            onExit { println("Exit start") }
+            transition<AckEvent> {
+                targetState = Start2State
+            }
+        }
+
+        addState(Start2State) {
+            onEntry {
+                println("Enter start2")
+                //sendResponse(it.argument, Bind(side = "receive"))
+            }
+            onExit { println("Exit start2") }
+            transition<AckEvent> {
+                targetState = Start2State
+            }
         }
 
         ignoredEventHandler = StateMachine.IgnoredEventHandler { event, _ ->
