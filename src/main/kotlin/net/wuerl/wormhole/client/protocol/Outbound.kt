@@ -1,5 +1,9 @@
 package net.wuerl.wormhole.client.protocol
 
+import io.ktor.websocket.*
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.runBlocking
+
 open class Outbound(val type: String)
 
 open class Bind(
@@ -7,3 +11,21 @@ open class Bind(
     val side: String,
     val clientVersion: Array<String> = arrayOf("kotlin", "0.1.0"),
 ) : Outbound("bind")
+
+class Allocate : Outbound("allocate")
+
+class Claim(val nameplate: String) : Outbound("claim")
+
+fun sendResponse(argument: Any?, payload: Outbound) {
+    if (argument is SendChannel<*>) {
+        val sendChannel = argument as SendChannel<Frame>
+        runBlocking {
+            print("Start send '${payload.type}' ...")
+            sendChannel.send(
+                Frame.Text(klaxon.toJsonString(payload))
+            )
+            println(" done")
+        }
+    }
+
+}
