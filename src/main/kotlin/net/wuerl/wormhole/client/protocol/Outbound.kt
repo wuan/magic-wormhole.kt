@@ -18,7 +18,7 @@ class Claim(val nameplate: String) : Outbound("claim")
 
 fun sendResponse(argument: Any?, payload: Outbound) {
     if (argument is SendChannel<*>) {
-        val sendChannel = argument as SendChannel<Frame>
+        @Suppress("UNCHECKED_CAST") val sendChannel = argument as SendChannel<Frame>
         runBlocking {
             print("Start send '${payload.type}' ...")
             sendChannel.send(
