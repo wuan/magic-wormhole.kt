@@ -41,8 +41,9 @@ data class Claimed(
     val serverTx: Float,
 )
 
-fun mapEvent(messageBody: String): Event? {
+fun parseType(text: String): String? {
     var type: String? = null
+
     val pathMatcher = object : PathMatcher {
         override fun pathMatches(path: String) = Pattern.matches("\\$\\.type", path)
 
@@ -53,17 +54,24 @@ fun mapEvent(messageBody: String): Event? {
         }
     }
 
-    klaxon.pathMatcher(pathMatcher).parse<String>(messageBody)
+    klaxon.pathMatcher(pathMatcher).parse<String>(text)
 
-    if (type == null) {
-        return null
-    }
-    //println("parsing message: $messageBody")
-    return when (type) {
-        "welcome" -> WelcomeEvent(klaxon.parse<Welcome>(messageBody)!!)
-        "ack" -> AckEvent(klaxon.parse<Ack>(messageBody)!!)
-        "allocated" -> AllocatedEvent(klaxon.parse<Allocated>(messageBody)!!)
-        "claimed" -> ClaimedEvent(klaxon.parse<Claimed>(messageBody)!!)
-        else -> null
+    return type
+}
+
+class EventMapper {
+
+    fun mapEvent(messageBody: String): Event? {
+
+        val type = parseType(messageBody) ?: return null;
+
+        //println("parsing message: $messageBody")
+        return when (type) {
+            "welcome" -> WelcomeEvent(klaxon.parse<Welcome>(messageBody)!!)
+            "ack" -> AckEvent(klaxon.parse<Ack>(messageBody)!!)
+            "allocated" -> AllocatedEvent(klaxon.parse<Allocated>(messageBody)!!)
+            "claimed" -> ClaimedEvent(klaxon.parse<Claimed>(messageBody)!!)
+            else -> null
+        }
     }
 }
