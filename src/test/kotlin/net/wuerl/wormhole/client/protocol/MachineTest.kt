@@ -30,17 +30,11 @@ class MachineTest {
 
         val bind: Bind? = klaxon.parse<Bind>(frameSlot.captured.data.decodeToString())
         assertThat(bind?.type).isEqualTo("bind")
-
-        println(machine)
-        println(machine.isRunning)
     }
 
     @Order(2)
     @Test
     fun handlesAck() {
-        println(machine)
-        println(machine.isRunning)
-
         val frameSlot = slot<Frame>()
         coEvery { sendChannel.send(capture(frameSlot)) } returns Unit
 
