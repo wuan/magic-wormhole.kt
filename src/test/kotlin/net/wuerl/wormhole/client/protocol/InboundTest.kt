@@ -1,5 +1,6 @@
 package net.wuerl.wormhole.client.protocol
 
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,7 +30,7 @@ class EventMapperTest {
 
         assertThat(result).isInstanceOf(AckEvent::class.java)
         if (result is AckEvent) {
-            assertThat(result.data).isEqualTo(Ack(id = null, type = "ack", serverTx = 1672596298.0351338f))
+            assertThat(result.data).isEqualTo(Ack(id = null, serverTx = 1672596298.0351338f))
         }
     }
 }

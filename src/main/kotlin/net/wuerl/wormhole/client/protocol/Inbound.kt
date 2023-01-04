@@ -12,7 +12,6 @@ class WelcomeEvent(override val data: Welcome) : DataEvent<Welcome>
 
 data class Welcome(
     val welcome: WelcomeOptions,
-    val type: String,
     val serverTx: Float,
 ) : Message
 
@@ -22,7 +21,6 @@ class AckEvent(override val data: Ack) : DataEvent<Ack>
 
 data class Ack(
     val id: String?,
-    val type: String,
     val serverTx: Float,
 ) : Message
 
