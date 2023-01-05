@@ -1,10 +1,7 @@
 package net.wuerl.wormhole.client.protocol
 
 import io.ktor.websocket.*
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
+import io.mockk.*
 import kotlinx.coroutines.channels.SendChannel
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Assertions.*
@@ -39,5 +36,22 @@ class MachineWrapperTest {
         if (event is AllocatedEvent) {
             assertThat(event.data.id).isEqualTo("foo")
         }
+    }
+
+    @Test
+    fun processesIgnoredMessage() {
+        val eventSlot = slot<Event>();
+        every { machine.processEvent(capture(eventSlot), sendChannel) } returns ProcessingResult.IGNORED
+        val json = "{\"id\": \"foo\", \"nameplate\": \"1\", \"type\": \"allocated\" , \"server_tx\" : 1.2}"
+        uut.processMessage(Frame.Text(text = json), sendChannel)
+    }
+
+    @Test
+    fun ignoresUnknownMessage() {
+        val eventSlot = slot<Event>();
+        val json = "{\"type\": \"unknown\"}"
+        uut.processMessage(Frame.Text(text = json), sendChannel)
+
+        verify { machine wasNot called }
     }
 }
