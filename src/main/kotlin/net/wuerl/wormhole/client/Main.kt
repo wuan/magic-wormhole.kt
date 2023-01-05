@@ -36,27 +36,3 @@ fun main() {
     client.close()
     println("Connection closed. Goodbye!")
 }
-
-class MachineWrapper(
-    val machine: StateMachine,
-    val eventMapper: EventMapper = EventMapper()
-) {
-
-    fun processMessage(
-        message: Frame.Text, outgoing: SendChannel<Frame>
-    ) {
-        val event = eventMapper.mapEvent(message.readText())
-        if (event != null) {
-            processEvent(event, outgoing)
-        }
-    }
-
-    private fun processEvent(
-        event: Event, outgoing: SendChannel<Frame>
-    ) {
-        val processResult = machine.processEvent(event, outgoing)
-        if (processResult != ProcessingResult.PROCESSED) {
-            println("event result $processResult")
-        }
-    }
-}

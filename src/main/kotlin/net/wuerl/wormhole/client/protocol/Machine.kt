@@ -1,5 +1,7 @@
 package net.wuerl.wormhole.client.protocol
 
+import io.ktor.websocket.*
+import kotlinx.coroutines.channels.SendChannel
 import ru.nsk.kstatemachine.*
 
 fun getMachine() = createStateMachine {
@@ -88,3 +90,27 @@ fun getMachine() = createStateMachine {
     }
 }
 
+class MachineWrapper(
+    val machine: StateMachine,
+    val eventMapper: EventMapper = EventMapper()
+) {
+
+    fun processMessage(
+        message: Frame.Text, outgoing: SendChannel<Frame>
+    ) {
+        val event = eventMapper.mapEvent(message.readText())
+        if (event != null) {
+            processEvent(event, outgoing)
+        }
+    }
+
+    private fun processEvent(
+        event: Event, outgoing: SendChannel<Frame>
+    ) {
+        print("process")
+        val processResult = machine.processEvent(event, outgoing)
+        if (processResult != ProcessingResult.PROCESSED) {
+            println("event result $processResult")
+        }
+    }
+}
