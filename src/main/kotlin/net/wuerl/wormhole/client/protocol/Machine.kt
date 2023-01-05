@@ -45,6 +45,9 @@ fun getMachine() = createStateMachine {
         onExit { println("Exit start2\n") }
         transition<AckEvent> {
             targetState = States.Start2State
+            onTriggered {
+                println("Ack in start2")
+            }
         }
         dataTransition<AllocatedEvent, Allocated> {
             targetState = Start3State
@@ -76,7 +79,7 @@ fun getMachine() = createStateMachine {
     addState(Start4State) {
         onEntry {
             println("Enter start4 $data")
-            //sendResponse(it.argument, Claim(data.nameplate))
+            sendResponse(it.argument, Open(data.mailbox))
         }
         onExit { println("Exit start4\n") }
         transition<AckEvent> {

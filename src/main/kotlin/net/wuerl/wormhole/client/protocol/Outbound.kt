@@ -16,6 +16,8 @@ class Allocate : Outbound("allocate")
 
 class Claim(val nameplate: String) : Outbound("claim")
 
+class Open(val mailbox: String) : Outbound("open")
+
 fun sendResponse(argument: Any?, payload: Outbound) {
     if (argument is SendChannel<*>) {
         @Suppress("UNCHECKED_CAST") val sendChannel = argument as SendChannel<Frame>

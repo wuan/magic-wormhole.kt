@@ -1,0 +1,46 @@
+= Protocol
+
+== V1
+
+[plantuml, align="center"]
+....
+skinparam responseMessageBelowArrow true
+participant Client as C
+participant Server as S
+
+== Connect ==
+C -> S : open WebSocket connection
+S -> C : Welcome
+
+...
+
+group Optional if PermissionRequired
+C -> S : Hashcash
+S -> C : Ack
+
+...
+
+end
+
+
+C -> S : Bind
+S -> C : Ack
+
+...
+
+== Open ==
+
+C -> S : Allocate
+S -> C : Allocated(nameplate)
+
+...
+
+C -> S : Claim(nameplate)
+S -> C : Claimed(mailbox)
+
+...
+
+C -> S : Open(mailbox)
+S -> C : Ack
+
+....
