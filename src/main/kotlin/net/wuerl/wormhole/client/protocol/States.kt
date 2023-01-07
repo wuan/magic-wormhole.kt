@@ -9,12 +9,16 @@ object CancelEvent : Event
 
 
 sealed class States : DefaultState() {
-    object InitState : States()
-    object StartState : States()
-    object Start2State : States()
+    object Connect : States()
+    object Welcome : States()
+    object Bind : States()
+
+    object Open : States()
+
+    object Allocate : States()
     object ExitState : States(), FinalState // Machine finishes when enters final state
 }
 
-object Start3State : DefaultDataState<Allocated>()
-object Start4State : DefaultDataState<Claimed>()
+object ClaimState : DefaultDataState<Allocated>()
+object OpenState : DefaultDataState<Claimed>()
 
