@@ -34,7 +34,7 @@ class MachineTest {
 
     @Order(2)
     @Test
-    fun handlesAck() {
+    fun handlesBindAck() {
         val frameSlot = slot<Frame>()
         coEvery { sendChannel.send(capture(frameSlot)) } returns Unit
 
@@ -43,6 +43,32 @@ class MachineTest {
 
         val bind: Allocate? = klaxon.parse<Allocate>(frameSlot.captured.data.decodeToString())
         assertThat(bind?.type).isEqualTo("allocate")
+    }
+
+    @Order(3)
+    @Test
+    fun handlesAllocated() {
+        val frameSlot = slot<Frame>()
+        coEvery { sendChannel.send(capture(frameSlot)) } returns Unit
+
+        val event = AllocatedEvent(Allocated(null, "foo", 1.23f))
+        machine.processEvent(event, sendChannel)
+
+        val bind: Claim? = klaxon.parse<Claim>(frameSlot.captured.data.decodeToString())
+        assertThat(bind?.type).isEqualTo("claim")
+    }
+
+    @Order(4)
+    @Test
+    fun handlesOpen() {
+        val frameSlot = slot<Frame>()
+        coEvery { sendChannel.send(capture(frameSlot)) } returns Unit
+
+        val event = ClaimedEvent(Claimed("bar", 1.23f))
+        machine.processEvent(event, sendChannel)
+
+        val bind: Open? = klaxon.parse<Open>(frameSlot.captured.data.decodeToString())
+        assertThat(bind?.type).isEqualTo("open")
     }
 
     companion object {

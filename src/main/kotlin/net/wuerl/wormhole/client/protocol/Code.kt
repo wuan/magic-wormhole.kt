@@ -42,8 +42,8 @@ class Wordlist(
     see https://en.wikipedia.org/wiki/PGP_word_list
      */
 
-    lateinit var oddWords: Map<Int, String>
-    lateinit var evenWords: Map<Int, String>
+    var oddWords: Map<Int, String>
+    var evenWords: Map<Int, String>
 
     init {
         val resource = Code::class.java.getResource(wordsResource)
