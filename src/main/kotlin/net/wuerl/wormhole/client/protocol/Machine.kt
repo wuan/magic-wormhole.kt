@@ -4,7 +4,12 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.channels.SendChannel
 import ru.nsk.kstatemachine.*
 
+class MachineState {
+    lateinit var nameplate: String
+}
+
 fun getMachine() = createStateMachine {
+    val state = MachineState()
     addInitialState(States.Connect) {
         onEntry { println("Enter Connect") }
         onExit { println("Exit Connect") }
@@ -15,14 +20,11 @@ fun getMachine() = createStateMachine {
 
             transition<CancelEvent> {
                 targetState = States.ExitState
-                // Add transition listener
                 onTriggered { println("Cancelled") }
             }
             transition<WelcomeEvent> {
                 targetState = States.Bind
-                onTriggered {
-                    println("Received Welcome")
-                }
+                onTriggered { println("Received Welcome") }
             }
         }
 
@@ -34,9 +36,7 @@ fun getMachine() = createStateMachine {
             onExit { println("Exit Connect.Bind\n") }
             transition<AckEvent> {
                 targetState = States.Open
-                onTriggered {
-                    println("Ack in Connect.Bind")
-                }
+                onTriggered { println("Ack in Connect.Bind") }
             }
         }
     }
@@ -52,34 +52,27 @@ fun getMachine() = createStateMachine {
             onExit { println("Exit Open.Allocate\n") }
             transition<AckEvent> {
                 targetState = States.Allocate
-                onTriggered {
-                    println("Ack in start2")
-                }
+                onTriggered { println("received Ack in Open.Allocate") }
             }
             dataTransition<AllocatedEvent, Allocated> {
                 targetState = ClaimState
-                onTriggered {
-                    println("Received Allocated")
-                }
+                onTriggered { println("Received Allocated") }
             }
         }
 
         addState(ClaimState) {
             onEntry {
                 println("Enter Open.Claim $data")
+                state.nameplate = data.nameplate
                 sendResponse(it.argument, Claim(data.nameplate))
             }
             onExit { println("Exit Open.Claim\n") }
             transition<AckEvent> {
-                onTriggered {
-                    println("Ack in Open.Claim")
-                }
+                onTriggered { println("received Ack in Open.Claim") }
             }
             dataTransition<ClaimedEvent, Claimed> {
                 targetState = OpenState
-                onTriggered {
-                    println("Received Claimed")
-                }
+                onTriggered { println("Received Claimed ${it.direction}") }
             }
         }
 
@@ -91,7 +84,9 @@ fun getMachine() = createStateMachine {
             onExit { println("Exit Open.Open\n") }
             transition<AckEvent> {
                 onTriggered {
-                    println("Ack in Open.Open")
+                    println("received n Ack in Open.Open")
+                    val code = CodeFactory().create(state.nameplate)
+                    println(code)
                 }
             }
         }

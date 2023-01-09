@@ -20,5 +20,6 @@ sealed class States : DefaultState() {
 }
 
 object ClaimState : DefaultDataState<Allocated>()
+
 object OpenState : DefaultDataState<Claimed>()
 
