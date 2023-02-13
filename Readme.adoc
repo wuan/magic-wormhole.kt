@@ -1,0 +1,7 @@
+= wormhole.kt
+
+IMPORTANT: This project is still in an experimental state. Contributions are welcome!
+
+This is attempt to create an implementation of the link:https://github.com/magic-wormhole/magic-wormhole-protocols[Magic Wormhole protocol] for the JVM.
+
+It uses a state machine based approach for the protocol implementation.
