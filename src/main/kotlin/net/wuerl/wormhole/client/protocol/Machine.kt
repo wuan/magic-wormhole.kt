@@ -5,6 +5,7 @@ import kotlinx.coroutines.channels.SendChannel
 import ru.nsk.kstatemachine.*
 
 class MachineState {
+    var welcome: String? = null
     lateinit var nameplate: String
 }
 
@@ -14,7 +15,6 @@ fun getMachine() = createStateMachine {
         onEntry { println("Enter Connect") }
         onExit { println("Exit Connect") }
         addInitialState(States.Welcome) {
-            // Add state listeners
             onEntry { println("Enter Connect.Welcome") }
             onExit { println("Exit Connect.Welcome\n") }
 
@@ -24,7 +24,10 @@ fun getMachine() = createStateMachine {
             }
             transition<WelcomeEvent> {
                 targetState = States.Bind
-                onTriggered { println("Received Welcome") }
+                onTriggered {
+                    println("Received Welcome")
+                    state.welcome = it.event.data.welcome.motd
+                }
             }
         }
 
@@ -86,7 +89,8 @@ fun getMachine() = createStateMachine {
                 onTriggered {
                     println("received n Ack in Open.Open")
                     val code = CodeFactory().create(state.nameplate)
-                    println(code)
+                    println("MOTD: ${state.welcome}")
+                    println("code: ${code})")
                 }
             }
         }

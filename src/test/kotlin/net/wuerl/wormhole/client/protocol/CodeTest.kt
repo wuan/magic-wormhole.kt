@@ -78,8 +78,8 @@ class WordlistTest {
 
     @Test
     fun shouldDeliverLastValues() {
-        assertThat(uut.getEven(255)).isEqualTo("Zulu")
-        assertThat(uut.getOdd(255)).isEqualTo("Yucatan")
+        assertThat(uut.getEven(255)).isEqualTo("zulu")
+        assertThat(uut.getOdd(255)).isEqualTo("yucatan")
     }
 
     @Test

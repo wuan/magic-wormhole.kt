@@ -55,8 +55,8 @@ class Wordlist(
         jsonObject.forEach { key, value ->
             if (value is JsonArray<*>) {
                 val index = Integer.valueOf(key, 16)
-                evenWords[index] = value[0] as String
-                oddWords[index] = value[1] as String
+                evenWords[index] = (value[0] as String).lowercase()
+                oddWords[index] = (value[1] as String).lowercase()
             }
         }
         this.oddWords = oddWords.toMap()

@@ -15,7 +15,7 @@ data class Welcome(
     val serverTx: Float,
 ) : Message
 
-data class WelcomeOptions(val test: String = "")
+data class WelcomeOptions(val motd: String? = null)
 
 class AckEvent(override val data: Ack) : DataEvent<Ack>
 

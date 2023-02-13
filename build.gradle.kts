@@ -7,6 +7,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven(url = "https://jitpack.io")
 }
 
 val ktorVersion: String by project
@@ -19,6 +20,7 @@ dependencies {
 
     implementation("com.beust:klaxon:5.6")
 
+    implementation("com.github.MuntashirAkon.spake2-java:java:2.0.0")
     implementation("software.pando.crypto:salty-coffee:1.1.0")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
